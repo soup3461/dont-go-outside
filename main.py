@@ -10,6 +10,7 @@ needed_items = [""]
 needed_items.pop()
 supplies_delivered = 0
 list_len = 0
+minimap_open = False
 # setup
 
 #JESUS CHRIST THIS SHOULD BE NOT THIS
@@ -117,7 +118,7 @@ def supint(player, supply):
         if len(needed_items) == 0:
             supplies = True
     else:
-        info.change_countdown_by(2)
+        info.change_countdown_by(4) #it's 4 now, thank Emi
     sprites.destroy(supply)
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, supint)
 
@@ -144,3 +145,30 @@ def endgame():
     game.show_long_text("Ah, they found you, you've been outside too long... It's ok though, you managed to deliver: " + info.score() + " supplies to help rebuild the nation! Try again to get even more!" , DialogLayout.FULL)
     game.game_over(False)
 info.on_countdown_end(endgame)
+
+#minimap, might be useful for some people
+minimap_object = minimap.minimap(MinimapScale.EIGHTH, 2, 15)
+minimap_image = minimap.get_image(minimap_object)
+minimap_sprite = sprites.create(minimap_image)
+minimap_sprite.z = 100
+minimap_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+minimap_sprite.set_flag(SpriteFlag.INVISIBLE, True)
+# on menu because I hate everyone ig
+def toggle_map():
+    global minimap_open
+    if minimap_open:
+        minimap_sprite.set_flag(SpriteFlag.INVISIBLE, True)
+        minimap_open = False
+    else:
+        minimap_sprite.set_flag(SpriteFlag.INVISIBLE, False)
+        minimap_open = True
+controller.menu.on_event(ControllerButtonEvent.PRESSED, toggle_map)
+
+def update_minimap():
+    if minimap_open:
+        minimap_object = minimap.minimap(MinimapScale.EIGHTH, 2, 15)
+        minimap.include_sprite(minimap_object, hero, MinimapSpriteScale.QUADRUPLE)
+        for supply in sprites.all_of_kind(SpriteKind.food):
+            minimap.include_sprite(minimap_object, supply, MinimapSpriteScale.OCTUPLE)
+        minimap_sprite.set_image(minimap.get_image(minimap_object))
+game.on_update_interval(100, update_minimap)

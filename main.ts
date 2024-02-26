@@ -10,6 +10,7 @@ let needed_items = [""]
 needed_items.pop()
 let supplies_delivered = 0
 let list_len = 0
+let minimap_open = false
 //  setup
 // JESUS CHRIST THIS SHOULD BE NOT THIS
 game.showLongText("The world has seen better days... We can't even stay out for long until \"They\" find us. It's your job to get supplies, Press B/ENTER to check your list, then talk to John in your house for the next task!", DialogLayout.Full)
@@ -130,9 +131,10 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function supint(player: Sp
         }
         
     } else {
-        info.changeCountdownBy(2)
+        info.changeCountdownBy(4)
     }
     
+    // it's 4 now, thank Emi
     sprites.destroy(supply)
 })
 //  we can't always have john to tell us what we need, luckily we have a notepad 
@@ -157,4 +159,35 @@ info.onCountdownEnd(function endgame() {
     info.setScore(supplies_delivered)
     game.showLongText("Ah, they found you, you've been outside too long... It's ok though, you managed to deliver: " + info.score() + " supplies to help rebuild the nation! Try again to get even more!", DialogLayout.Full)
     game.gameOver(false)
+})
+// minimap, might be useful for some people
+let minimap_object = minimap.minimap(MinimapScale.Eighth, 2, 15)
+let minimap_image = minimap.getImage(minimap_object)
+let minimap_sprite = sprites.create(minimap_image)
+minimap_sprite.z = 100
+minimap_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
+minimap_sprite.setFlag(SpriteFlag.Invisible, true)
+//  on menu because I hate everyone ig
+controller.menu.onEvent(ControllerButtonEvent.Pressed, function toggle_map() {
+    
+    if (minimap_open) {
+        minimap_sprite.setFlag(SpriteFlag.Invisible, true)
+        minimap_open = false
+    } else {
+        minimap_sprite.setFlag(SpriteFlag.Invisible, false)
+        minimap_open = true
+    }
+    
+})
+game.onUpdateInterval(100, function update_minimap() {
+    let minimap_object: minimap.Minimap;
+    if (minimap_open) {
+        minimap_object = minimap.minimap(MinimapScale.Eighth, 2, 15)
+        minimap.includeSprite(minimap_object, hero, MinimapSpriteScale.Quadruple)
+        for (let supply of sprites.allOfKind(SpriteKind.Food)) {
+            minimap.includeSprite(minimap_object, supply, MinimapSpriteScale.Octuple)
+        }
+        minimap_sprite.setImage(minimap.getImage(minimap_object))
+    }
+    
 })
