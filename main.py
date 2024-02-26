@@ -118,7 +118,10 @@ def supint(player, supply):
         if len(needed_items) == 0:
             supplies = True
     else:
-        info.change_countdown_by(4) #it's 4 now, thank Emi
+        if time == 0:
+            info.change_countdown_by(4) #it's 4 now, thank Emi
+        else:
+            time += 4
     sprites.destroy(supply)
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, supint)
 

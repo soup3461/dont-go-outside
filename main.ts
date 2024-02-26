@@ -130,11 +130,13 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function supint(player: Sp
             supplies = true
         }
         
-    } else {
+    } else if (time == 0) {
         info.changeCountdownBy(4)
+    } else {
+        // it's 4 now, thank Emi
+        time += 4
     }
     
-    // it's 4 now, thank Emi
     sprites.destroy(supply)
 })
 //  we can't always have john to tell us what we need, luckily we have a notepad 
